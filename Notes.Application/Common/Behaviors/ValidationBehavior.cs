@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Notes.Application.Common.Behaviors
 {  //фильтр, работает до вызова действий контроллера
@@ -18,8 +13,8 @@ namespace Notes.Application.Common.Behaviors
             _validators = validators;
         }
 
-        public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
-        {
+        public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        { //request -это объект запроса переданный через метод IMediator.Send()
             var context = new ValidationContext<TRequest>(request);
             var failures = _validators
                .Select(v => v.Validate(context))
