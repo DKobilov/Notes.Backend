@@ -1,41 +1,110 @@
-//var builder = WebApplication.CreateBuilder(args);
-//var app = builder.Build();
-
-//app.MapGet("/", () => "Hello World!");
-
-//app.Run();
-
+using Notes.Application;
 using Notes.Persistence;
+using System.Reflection;
+using Notes.Application.Interfaces;
 
-namespace Notes.WebAPI;
+var builder = WebApplication.CreateBuilder(args);
 
-public class Program
+// Получаем IConfiguration
+var configuration = builder.Configuration;
+
+// Регистрируем сервисы
+builder.Services.AddAutoMapper(
+    Assembly.GetExecutingAssembly(),
+    typeof(INotesDbContext).Assembly);
+
+builder.Services.AddApplication();
+builder.Services.AddPersistence(configuration);
+builder.Services.AddControllers();
+
+builder.Services.AddCors(options =>
 {
-    public static void Main(string[] args)
+    options.AddPolicy("AllowAll", policy =>
     {
-        var host = CreateHostBuilder(args).Build();
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+        policy.AllowAnyOrigin();
+    });
+});
 
-        using (var scope = host.Services.CreateScope())
-        {
-            var serviceProvider = scope.ServiceProvider;
 
-            try
-            {
-                var context = serviceProvider.GetRequiredService<NotesDbContext>();
-                DbInitializer.Initialize(context);
-            }
-            catch (Exception ex)
-            {
-               //в следующие разы вернемся к этому коду что делать с ошибками
+var app = builder.Build();
 
-            }
-        }
+// Инициализация базы данных
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<NotesDbContext>();
+        DbInitializer.Initialize(context);
     }
-
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseStartup<Startup>();
-            });
+    catch (Exception ex)
+    {
+        // TODO: логирование ошибки при инициализации базы данных
+        Console.WriteLine($"Ошибка инициализации БД: {ex.Message}");
+    }
 }
+
+// Конфигурация middleware
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
+app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors("AllowAll");
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+
+
+
+
+
+
+
+
+
+
+
+
+
+//using Notes.Persistence;
+
+//namespace Notes.WebAPI;
+
+//public class Program
+//{
+//    public static void Main(string[] args)
+//    {
+//        var host = CreateHostBuilder(args).Build();
+
+//        using (var scope = host.Services.CreateScope())
+//        {
+//            var serviceProvider = scope.ServiceProvider;
+
+//            try
+//            {
+//                var context = serviceProvider.GetRequiredService<NotesDbContext>();
+//                DbInitializer.Initialize(context);
+//            }
+//            catch (Exception ex)
+//            {
+//               //в следующие разы вернемся к этому коду что делать с ошибками
+
+//            }
+//        }
+//    }
+
+//    public static IHostBuilder CreateHostBuilder(string[] args) =>
+//        Host.CreateDefaultBuilder(args)
+//            .ConfigureWebHostDefaults(webBuilder =>
+//            {
+//                webBuilder.UseStartup<Startup>();
+//            });
+//}
