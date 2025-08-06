@@ -3,6 +3,7 @@ using Notes.Application;
 using Notes.Application.Common.Mappings;
 using Notes.Application.Interfaces;
 using Notes.Persistence;
+using Notes.WebAPI.Middleware;
 using System.Reflection;
 
 namespace Notes.WebAPI
@@ -51,6 +52,7 @@ namespace Notes.WebAPI
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCustomExceptionHandler();
             app.UseRouting(); // определяет куда должее пойти запрос
                               //Когда клиент отправляет HTTP-запрос, UseRouting():
                               //Читает URL запроса.

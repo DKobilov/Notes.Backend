@@ -2,6 +2,7 @@ using Notes.Application;
 using Notes.Persistence;
 using System.Reflection;
 using Notes.Application.Interfaces;
+using Notes.WebAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,8 +53,9 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-app.UseHttpsRedirection();
+app.UseCustomExceptionHandler();
 app.UseRouting();
+app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
 app.UseAuthorization();
