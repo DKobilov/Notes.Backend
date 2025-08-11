@@ -1,0 +1,8 @@
+﻿services:
+  webapi:
+    image: webapi
+    build:
+      context: .
+      dockerfile: Notes.WebAPI/Dockerfile
+    ports:
+      - "8080:8080"
