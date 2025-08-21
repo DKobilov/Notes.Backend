@@ -18,6 +18,8 @@ builder.Services.AddApplication();
 builder.Services.AddPersistence(configuration);
 builder.Services.AddControllers();
 
+builder.Services.AddSwaggerGen(); // UI будет по /swagger
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -50,7 +52,9 @@ using (var scope = app.Services.CreateScope())
 // Конфигурация middleware
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    //app.UseDeveloperExceptionPage();
 }
 
 app.UseCustomExceptionHandler();
